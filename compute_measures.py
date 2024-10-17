@@ -9,8 +9,8 @@ import glob
 import sys
 
 # take as argument database name and noise type
-database = sys.argv[1]
-noise_type = sys.argv[2]
+database = sys.argv[1] # database input
+noise_type = sys.argv[2] # 'rnoise' or 'conoise'
 algo_version = sys.argv[3] # either 'bound_hier', 'hier_expomech', 'expomech', 'baseline_maxdeg', 'baseline_truedeg'
 
 print("database: ", database)
