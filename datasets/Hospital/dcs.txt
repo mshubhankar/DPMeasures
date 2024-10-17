@@ -1,0 +1,7 @@
+not(t1.City!=t2.City&t1.ZipCode=t2.ZipCode)
+not(t1.State!=t2.State&t1.ZipCode=t2.ZipCode)
+not(t1.ZipCode!=t2.ZipCode&t1.PhoneNumber=t2.PhoneNumber)
+not(t1.MeasureCode=t2.MeasureCode&t1.MeasureName!=t2.MeasureName)
+not(t1.MeasureCode!=t2.MeasureCode&t1.MeasureName=t2.MeasureName)
+not(t1.State=t2.State&t1.MeasureCode=t2.MeasureCode&t1.Stateavg!=t2.Stateavg)
+not(t1.ProviderNumber=t2.ProviderNumber&t1.PhoneNumber!=t2.PhoneNumber)

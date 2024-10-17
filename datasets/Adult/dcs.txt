@@ -1,0 +1,3 @@
+not(t1.EduNum!=t2.EduNum&t1.Education=t2.Education)
+not(t1.EduNum=t2.EduNum&t1.Education!=t2.Education)
+not(t1.Gain<t2.Gain&t1.Loss<t2.Loss)
