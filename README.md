@@ -6,7 +6,7 @@ To set up the Python environment using conda and install the required packages, 
 
 1. Create a new conda environment:
     ```sh
-    conda create --name dpmeasures python=3.8
+    conda create --name dpmeasures python=3.11
     ```
 
 2. Activate the environment:
