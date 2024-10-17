@@ -65,10 +65,10 @@ for epsilon in epsilons:
         file_count = len(glob.glob(data_directory + file_regex))
         
         
-        for iter in range(0, file_count*storing_interval, storing_interval):
+        for iter in range(storing_interval, file_count*storing_interval, storing_interval):
             
             # load graph
-            G = pickle.load(open(data_directory + f'graph10k_{noise_type}_{iter}_0.pkl', 'rb'))
+            G = pickle.load(open(data_directory + f'graph_{n_rows}_{noise_type}_{iter}_0.pkl', 'rb'))
             num_nodes = len(G.nodes())
             max_deg = num_nodes - 1
             true_histogram = util.get_deg_his(G, max_deg) 
@@ -107,7 +107,7 @@ for epsilon in epsilons:
 
                 if algo_version == 'bound_hier':
                     
-                    upper_bound = util.get_upperbound(f'datasets/{database}', data_directory + f'graph_{n_rows}_{noise_type}_{iter}_0.csv' , upper_bound)
+                    upper_bound = util.get_upperbound(f'datasets/{database}', data_directory + f'graph_{n_rows}_{noise_type}_{iter}_0.csv' , bound_eps)
                     
                     # post_processing as upper bound can't be less than 0 or greater than n_rows
                     if upper_bound <= 0:
@@ -116,17 +116,19 @@ for epsilon in epsilons:
                     if upper_bound > n_rows:
                         upper_bound = n_rows
 
-                # remove all elements in theta_candidates that are larger than the sum_theta
-                theta_candidates = [i for i in theta_candidates if i <= upper_bound]
-                # add sum_theta to theta_candidates if it is not already in there
-                if upper_bound not in theta_candidates:
-                    theta_candidates.append(upper_bound)
+                    # remove all elements in theta_candidates that are larger than the sum_theta
+                    theta_candidates = [i for i in theta_candidates if i <= upper_bound]
+                    # add sum_theta to theta_candidates if it is not already in there
+                    if upper_bound not in theta_candidates:
+                        theta_candidates.append(upper_bound)
 
                 for i in range(repeats):
                 
                     if measure == "no_of_edges":
-                
-                        noisy_edges, true_theta_edges = nodedp_add_edge_nedges_lap(G, num_nodes, epsilon, theta_candidates, algo_version, expo_eps=expo_eps)
+                        if 'baseline' in algo_version:
+                            noisy_edges, true_theta_edges = nodedp_add_edge_nedges_lap(G, num_nodes, measure_epsilon, theta_candidates, algo_version=algo_version)
+                        else:
+                            noisy_edges, true_theta_edges = nodedp_add_edge_nedges_lap(G, num_nodes, epsilon, theta_candidates, algo_version=algo_version, expo_eps=expo_eps)
                         true_edges = G.number_of_edges()
                         noisy_result = noisy_edges
                         if noisy_result < 0: #post-processing as number of edges can't be less than 0 
@@ -136,8 +138,11 @@ for epsilon in epsilons:
                         privacy_noise = true_theta_edges - noisy_result
                         print('error: ', error)
                     
-                    elif measure == "positive_degree_nodes":               
-                        noisy_pdnodes, truncated_pdnodes = nodedp_add_edge_pdnodes_lap(G, num_nodes, epsilon, theta_candidates, algo_version, expo_eps=expo_eps)
+                    elif measure == "positive_degree_nodes":
+                        if 'baseline' in algo_version:
+                            noisy_pdnodes, truncated_pdnodes = nodedp_add_edge_pdnodes_lap(G, num_nodes, measure_epsilon, theta_candidates, algo_version=algo_version)
+                        else:          
+                            noisy_pdnodes, truncated_pdnodes = nodedp_add_edge_pdnodes_lap(G, num_nodes, epsilon, theta_candidates, algo_version=algo_version, expo_eps=expo_eps)
                         true_pos_nodes = num_nodes - true_histogram[0]
                         
                         error = abs(noisy_pdnodes-true_pos_nodes)/true_pos_nodes

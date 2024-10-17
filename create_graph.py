@@ -25,7 +25,7 @@ rnoise_alpha = 0.01 # percentage of cells to be violated with rnoise
 rnoise_beta = 0 #skew of the Zipfiand distribution used to select values from the active domain
 rnoise_typo_prob = 0.5 #probability of a typo or random value 
 type_noise = 'rnoise' # 'rnoise' or 'conoise'
-n_rows = 100000
+n_rows = 10000
 
 # pick random seeds for each repeat
 random_seeds = [random.randint(0, 1000) for _ in range(repeat)]
@@ -114,41 +114,41 @@ for testDirectoryPath in datasets:
             for iter in range(1, iterations):
                 rvio.rand_vio_algorithm(df,colomnsInConstraints,all_probs,rnoise_typo_prob)
                 
-                
-            allColumns = {}
-            orig_columns = df.columns
-            for col in df.columns: 
-                allColumns[col] = col.replace(' ','_')
-            df = df.rename(columns=allColumns)
+                if iter % storing_interval == 0:
+                    allColumns = {}
+                    orig_columns = df.columns
+                    for col in df.columns: 
+                        allColumns[col] = col.replace(' ','_')
+                    df = df.rename(columns=allColumns)
 
-            allConstraints = build_dynamic_queries(constraints,df)
+                    allConstraints = build_dynamic_queries(constraints,df)
 
 
-            violating_pairs, time1 = constraints_check(df,constraints, allColumns, allConstraints[0], allConstraints[1])
-            G = nx.Graph()
+                    violating_pairs, time1 = constraints_check(df,constraints, allColumns, allConstraints[0], allConstraints[1])
+                    G = nx.Graph()
 
-            for i in range(len(df)):
-                    G.add_node(i)
+                    for i in range(len(df)):
+                            G.add_node(i)
 
-            # iterate all rows of dataframe violating_pairs and add edges to graph
-            for i, row in violating_pairs.iterrows():
-                if row['id1'] != row['id2']: #don't add if self loop
-                    G.add_edge(row['id1'], row['id2'])
-            
-            saving_dir = 'datasets/'+ testDirectoryPath + '/conflict_graph' + '/'
+                    # iterate all rows of dataframe violating_pairs and add edges to graph
+                    for i, row in violating_pairs.iterrows():
+                        if row['id1'] != row['id2']: #don't add if self loop
+                            G.add_edge(row['id1'], row['id2'])
+                    
+                    saving_dir = 'datasets/'+ testDirectoryPath + '/conflict_graph' + '/'
 
-            #create directory if not exists
-            if not os.path.exists(saving_dir):
-                os.makedirs(saving_dir)
+                    #create directory if not exists
+                    if not os.path.exists(saving_dir):
+                        os.makedirs(saving_dir)
 
-            # save the graph
-            with open(saving_dir + f'graph_{n_rows}_rnoise_{iter}_{rep}.pkl', 'wb') as f:
-                pickle.dump(G, f)
+                    # save the graph
+                    with open(saving_dir + f'graph_{n_rows}_rnoise_{iter}_{rep}.pkl', 'wb') as f:
+                        pickle.dump(G, f)
 
-            df.to_csv(saving_dir + f'graph_{n_rows}_rnoise_{iter}_{rep}.csv', index=False, columns=orig_columns)
+                    df.to_csv(saving_dir + f'graph_{n_rows}_rnoise_{iter}_{rep}.csv', index=False, columns=orig_columns)
 
-            conflicts = G.edges()
-            print('Iteration:', iter, 'Conflicts:', len(conflicts))
+                    conflicts = G.edges()
+                    print('Iteration:', iter, 'Conflicts:', len(conflicts))
             
     print('Graphs saved for dataset:', testDirectoryPath)
     

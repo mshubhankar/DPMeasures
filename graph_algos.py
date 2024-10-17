@@ -23,13 +23,13 @@ def learn_theta_nedges(G, num_nodes, epsilon, expo_eps, theta_list, n_hiers=1):
             prob_list.append(prob)
         if i == 0:
             # adding final candidate = num nodes 
-            theta_cand_list = theta_list + [num_nodes]
+            theta_list = theta_list + [num_nodes]
             score = - np.sqrt(2) * num_nodes/ epsilon # no e_bias
             scores.append(score)
             prob_list.append(np.exp(expo_eps * score /(2.0 * sensitivity)))
-        
-        selected_theta = theta_cand_list[util.sample_prob_list(prob_list)]
-        theta_cand_list = [theta for theta in theta_cand_list if selected_theta >= theta] # preparing for next expo mech    
+        import pdb; pdb.set_trace()
+        selected_theta = theta_list[util.sample_prob_list(prob_list)]
+        theta_list = [theta for theta in theta_list if selected_theta >= theta] # preparing for next expo mech    
         
     return selected_theta
 
@@ -57,12 +57,12 @@ def learn_theta_pdnodes(G, num_nodes, epsilon, expo_eps, theta_list, n_hiers=1):
     if i == 0:
         # adding final candidate = num nodes 
         num_nodes = len(G.nodes())
-        theta_cand_list = theta_list + [num_nodes]
+        theta_list = theta_list + [num_nodes]
         score = - np.sqrt(num_nodes) * (num_nodes)/ epsilon # no n_bias
         prob_list.append(np.exp(expo_eps * score /(2.0 * sensitivity)))
 
-    selected_theta = theta_cand_list[util.sample_prob_list(prob_list)]
-    theta_cand_list = [theta for theta in theta_cand_list if selected_theta >= theta] # preparing for next expo mech 
+    selected_theta = theta_list[util.sample_prob_list(prob_list)]
+    theta_list = [theta for theta in theta_list if selected_theta >= theta] # preparing for next expo mech 
      
     return selected_theta
 
@@ -102,7 +102,7 @@ def nodedp_add_edge_nedges_lap(G, n_nodes, epsilon, theta_list, algo_version, ex
         n_hiers = 1
         if 'hier' in algo_version:
             n_hiers = 2
-        theta = learn_theta_nedges(G, n_nodes, epsilon, expo_eps, theta_list, algo_version=algo_version, n_hiers=n_hiers)
+        theta = learn_theta_nedges(G, n_nodes, epsilon, expo_eps, theta_list, n_hiers=n_hiers)
         print('chosen theta: ', theta)
     else:
         theta = theta_list[0]
@@ -122,7 +122,7 @@ def nodedp_add_edge_pdnodes_lap(G, n_nodes, epsilon, theta_list, algo_version, e
         n_hiers = 1
         if 'hier' in algo_version:
             n_hiers = 2
-        theta = learn_theta_pdnodes(G, n_nodes, epsilon, expo_eps, theta_list, algo_version=algo_version, n_hiers=n_hiers)
+        theta = learn_theta_pdnodes(G, n_nodes, epsilon, expo_eps, theta_list, n_hiers=n_hiers)
         print('chosen theta: ', theta)
     else:
         theta = theta_list[0]   
