@@ -20,7 +20,7 @@ datasets = [
 
 repeat = 1 # number of repeats with different seeds
 conoise_iter = 200 # number of iterations for conoise
-storing_interval = 10 # interval to store the graph
+storing_interval = None # interval to store the graph
 rnoise_alpha = 0.01 # percentage of cells to be violated with rnoise
 rnoise_beta = 0 #skew of the Zipfiand distribution used to select values from the active domain
 rnoise_typo_prob = 0.5 #probability of a typo or random value 
@@ -43,7 +43,8 @@ for testDirectoryPath in datasets:
         df = df_full.sample(n=n_rows, random_state=random_seeds[rep])
         
         if type_noise == 'conoise':
-        
+            if storing_interval is None:
+                storing_interval = conoise_iter-1
             for iter in range(conoise_iter):
                 global t1,t2
                 sample = df.sample(n=2)
@@ -110,7 +111,9 @@ for testDirectoryPath in datasets:
             cells_count = len(df.columns) * df.shape[0]
             iterations = int(rnoise_alpha * cells_count) # number of cells to be violated
             print('Number of cells to be violated:', iterations)
-            
+            if storing_interval is None:
+                storing_interval = iterations-1
+
             for iter in range(1, iterations):
                 rvio.rand_vio_algorithm(df,colomnsInConstraints,all_probs,rnoise_typo_prob)
                 

@@ -7,6 +7,7 @@ from graph_algos import vertex_cover, nodedp_add_edge_nedges_lap, nodedp_add_edg
 import util
 import glob
 import sys
+import time
 
 # take as argument database name and noise type
 database = sys.argv[1]
@@ -56,7 +57,7 @@ for epsilon in epsilons:
         #start writing in two csv files for random and rnoise results
         result_csv = open(f'{results_folder}/{algo_version}_{measure}_{n_rows}_{noise_type}_eps_{epsilon}.csv', 'w')
         
-        result_csv.write('iter,conflicts,error_nodes,lin_R,measure_value,privacy_noise,error,std\n')
+        result_csv.write('iter,conflicts,error_nodes,lin_R,measure_value,privacy_noise,error,std,time\n')
         
         print(f"Computing {measure} measure for {database} with {noise_type} noise and epsilon {epsilon}")
                
@@ -64,9 +65,8 @@ for epsilon in epsilons:
         # count files that match file_regex and iterate over them
         file_count = len(glob.glob(data_directory + file_regex))
         
-        
-        for iter in range(storing_interval, file_count*storing_interval, storing_interval):
-            
+
+        for iter in range(file_count):
             # load graph
             G = pickle.load(open(data_directory + f'graph_{n_rows}_{noise_type}_{iter}_0.pkl', 'rb'))
             num_nodes = len(G.nodes())
@@ -74,25 +74,41 @@ for epsilon in epsilons:
             true_histogram = util.get_deg_his(G, max_deg) 
 
             conflicts = G.edges()
-            non_private_lin_r, time = util.I_lin_R(conflicts) # non-private lin_R
+            non_private_lin_r, _ = util.I_lin_R(conflicts) # non-private lin_R
             print('Iteration:', iter, 'Conflicts:', len(conflicts))
-
+            temp_errors = []
+            temp_results = []
+            temp_measures = []
+            temp_pnoise = []
+            temp_time = []
+            
             if measure == "vertex_cover": #I_R measure has same algorithm for all versions
-                true_size, noisy_size, vertex_noise = vertex_cover(G,epsilon)
-                if true_size == 0:
-                    error = 0
-                else:
-                    error = abs(noisy_size-(non_private_lin_r*2))/(non_private_lin_r*2)
-                noisy_result = noisy_size            
-                print('error: ', error)
-                measure_value = true_size
-                privacy_noise = vertex_noise
+                
+                for i in range(repeats):
+                    start_time = time.time()
+                    true_size, noisy_size, vertex_noise = vertex_cover(G,epsilon)
+                    end_time = time.time()
+                    if true_size == 0:
+                        error = 0
+                    else:
+                        error = abs(noisy_size-(non_private_lin_r*2))/(non_private_lin_r*2)
+                    noisy_result = noisy_size            
+                    print('error: ', error)
+                    measure_value = true_size
+                    privacy_noise = vertex_noise
+
+                    temp_errors.append(error)
+                    temp_results.append(noisy_result)
+                    temp_measures.append(measure_value)
+                    temp_pnoise.append(privacy_noise)
+                    temp_time.append(end_time-start_time)
 
             else: #I_MI and I_P measures
                 if 'baseline' not in algo_version:
                     #Initializing candidate set for theta
-                    nearest_thousand = int(n_rows/1000)*1000
-                    theta_candidates = [i for i in range(1000, nearest_thousand, 1000)] #theta=n_rows is added later in expomech computation in graph_algos.py
+                    cand_interval = n_rows//10
+                    nearest_thousand = int(n_rows/cand_interval)*cand_interval
+                    theta_candidates = [i for i in range(cand_interval, nearest_thousand, cand_interval)] #theta=n_rows is added later in expomech computation in graph_algos.py
                     small_candidates = [1, 5, 10, 100, 500]
                     theta_candidates = small_candidates + theta_candidates
                 elif algo_version == 'baseline_maxdeg':
@@ -100,6 +116,13 @@ for epsilon in epsilons:
                 elif algo_version == 'baseline_truedeg':
                     theta_candidates = [max([i for i, val in enumerate(true_histogram) if val != 0])] # true max degree (non-private)
             
+            
+                temp_errors = []
+                temp_results = []
+                temp_measures = []
+                temp_pnoise = []
+
+
                 temp_errors = []
                 temp_results = []
                 temp_measures = []
@@ -107,7 +130,7 @@ for epsilon in epsilons:
 
                 if algo_version == 'bound_hier':
                     
-                    upper_bound = util.get_upperbound(f'datasets/{database}', data_directory + f'graph_{n_rows}_{noise_type}_{iter}_0.csv' , bound_eps)
+                    upper_bound = util.get_upperbound(f'datasets/{database}', data_directory + f'graph_{n_rows}_{noise_type}_0_0.csv' , bound_eps)
                     
                     # post_processing as upper bound can't be less than 0 or greater than n_rows
                     if upper_bound <= 0:
@@ -125,10 +148,12 @@ for epsilon in epsilons:
                 for i in range(repeats):
                 
                     if measure == "no_of_edges":
+                        start_time = time.time()
                         if 'baseline' in algo_version:
                             noisy_edges, true_theta_edges = nodedp_add_edge_nedges_lap(G, num_nodes, measure_epsilon, theta_candidates, algo_version=algo_version)
                         else:
                             noisy_edges, true_theta_edges = nodedp_add_edge_nedges_lap(G, num_nodes, epsilon, theta_candidates, algo_version=algo_version, expo_eps=expo_eps)
+                        end_time = time.time()
                         true_edges = G.number_of_edges()
                         noisy_result = noisy_edges
                         if noisy_result < 0: #post-processing as number of edges can't be less than 0 
@@ -139,10 +164,12 @@ for epsilon in epsilons:
                         print('error: ', error)
                     
                     elif measure == "positive_degree_nodes":
+                        start_time = time.time()
                         if 'baseline' in algo_version:
                             noisy_pdnodes, truncated_pdnodes = nodedp_add_edge_pdnodes_lap(G, num_nodes, measure_epsilon, theta_candidates, algo_version=algo_version)
                         else:          
                             noisy_pdnodes, truncated_pdnodes = nodedp_add_edge_pdnodes_lap(G, num_nodes, epsilon, theta_candidates, algo_version=algo_version, expo_eps=expo_eps)
+                        end_time = time.time()
                         true_pos_nodes = num_nodes - true_histogram[0]
                         
                         error = abs(noisy_pdnodes-true_pos_nodes)/true_pos_nodes
@@ -155,12 +182,13 @@ for epsilon in epsilons:
 
                     else:
                         print("no valid algo")
-            temp_errors.append(error)
-            temp_results.append(noisy_result)
-            temp_measures.append(measure_value)
-            temp_pnoise.append(privacy_noise)
+                    temp_errors.append(error)
+                    temp_results.append(noisy_result)
+                    temp_measures.append(measure_value)
+                    temp_pnoise.append(privacy_noise)
+                    temp_time.append(end_time-start_time)
     
-        result_csv.write(f'{iter}, {len(conflicts)},{num_nodes - true_histogram[0]},{non_private_lin_r},{np.mean(temp_measures)},{np.mean(temp_pnoise)},{np.mean(temp_errors)},{np.std(temp_errors)}\n')
+        result_csv.write(f'{iter}, {len(conflicts)},{num_nodes - true_histogram[0]},{non_private_lin_r},{np.mean(temp_measures)},{np.mean(temp_pnoise)},{np.mean(temp_errors)},{np.std(temp_errors)}, {np.mean(temp_time)}\n')
 
     result_csv.close()
         

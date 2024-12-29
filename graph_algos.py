@@ -27,7 +27,6 @@ def learn_theta_nedges(G, num_nodes, epsilon, expo_eps, theta_list, n_hiers=1):
             score = - np.sqrt(2) * num_nodes/ epsilon # no e_bias
             scores.append(score)
             prob_list.append(np.exp(expo_eps * score /(2.0 * sensitivity)))
-        import pdb; pdb.set_trace()
         selected_theta = theta_list[util.sample_prob_list(prob_list)]
         theta_list = [theta for theta in theta_list if selected_theta >= theta] # preparing for next expo mech    
         
