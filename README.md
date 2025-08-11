@@ -1,5 +1,16 @@
 # DPMeasures
 The codebase contains code for the paper "Computing Inconsistency Measures Under Differential Privacy"
+
+## Hardware requirements
+
+This codebase has been tested on a MacBook Pro with an Apple M1 chip. The main hardware requirements are:
+
+- Apple Silicon (M1 or later) or equivalent CPU
+- At least 16 GB RAM recommended for large datasets
+- Sufficient disk space for storing generated graphs and results
+
+**Note:** The most time-consuming hardware requirement is during the graph generation step (`create_graph.py`), especially when working with larger datasets and a higher number of constraints. Ensure your system has adequate resources to handle these workloads efficiently.
+
 ## Installation
 
 To set up the Python environment using conda and install the required packages, follow these steps:
@@ -58,3 +69,10 @@ To run the code, follow these steps:
   - `<noise_type>`: Type of noise, either 'rnoise' or 'conoise'.
   - `<algo_version>`: Algorithm version to use, either 'bound_hier', 'hier_expomech', 'expomech', 'baseline_maxdeg', or 'baseline_truedeg'.
 
+## Generate figures using scripts in the `figure_scripts` directory:
+   ```sh
+   python figure_scripts/figureX.sh
+   ```
+    Replace `figureX.sh` with the appropriate script for the figure you want to generate (e.g., `figure1.sh`, `figure2.sh`, etc.). Figure 3-4 and Figure 5-6 have same script. 
+
+ **Note:** The code introduces privacy noise by sampling from noisy distributions. As a result, the figures you generate may differ from those presented in the paper due to the inherent randomness in the noise sampling process.
