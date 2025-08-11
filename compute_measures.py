@@ -8,11 +8,17 @@ import util
 import glob
 import sys
 import time
+import argparse
 
-# take as argument database name and noise type
-database = sys.argv[1] # database input
-noise_type = sys.argv[2] # 'rnoise' or 'conoise'
-algo_version = sys.argv[3] # either 'bound_hier', 'hier_expomech', 'expomech', 'baseline_maxdeg', 'baseline_truedeg'
+parser = argparse.ArgumentParser(description='Compute DP measures on graphs.')
+parser.add_argument('database', type=str, help='Database name')
+parser.add_argument('noise_type', type=str, choices=['rnoise', 'conoise'], help='Type of noise')
+parser.add_argument('algo_version', type=str, choices=['bound_hier', 'hier_expomech', 'expomech', 'baseline_maxdeg', 'baseline_truedeg'], help='Algorithm version')
+
+args = parser.parse_args()
+database = args.database
+noise_type = args.noise_type
+algo_version = args.algo_version
 
 print("database: ", database)
 
@@ -65,7 +71,7 @@ for epsilon in epsilons:
         # count files that match file_regex and iterate over them
         file_count = len(glob.glob(data_directory + file_regex))
         
-
+        import pdb; pdb.set_trace()
         for iter in range(file_count):
             # load graph
             G = pickle.load(open(data_directory + f'graph_{n_rows}_{noise_type}_{iter}_0.pkl', 'rb'))

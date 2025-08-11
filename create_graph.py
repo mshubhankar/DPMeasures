@@ -7,6 +7,7 @@ import re
 import os
 import COnoiseViolationsAlgorithm as cvio
 import RnoiseViolationsAlgorithm as rvio
+import argparse
 random.seed(0)
 
 datasets = [
@@ -18,14 +19,26 @@ datasets = [
             ]
 
 
-repeat = 1 # number of repeats with different seeds
-conoise_iter = 200 # number of iterations for conoise
-storing_interval = None # interval to store the graph
-rnoise_alpha = 0.01 # percentage of cells to be violated with rnoise
-rnoise_beta = 0 #skew of the Zipfiand distribution used to select values from the active domain
-rnoise_typo_prob = 0.5 #probability of a typo or random value 
-type_noise = 'rnoise' # 'rnoise' or 'conoise'
-n_rows = 10000
+parser = argparse.ArgumentParser(description='Create conflict graphs with noise.')
+parser.add_argument('--repeat', type=int, default=1, help='Number of repeats with different seeds')
+parser.add_argument('--conoise_iter', type=int, default=200, help='Number of iterations for conoise')
+parser.add_argument('--storing_interval', type=int, default=None, help='Interval to store the graph')
+parser.add_argument('--rnoise_alpha', type=float, default=0.01, help='Percentage of cells to be violated with rnoise')
+parser.add_argument('--rnoise_beta', type=float, default=0, help='Skew of the Zipfiand distribution used to select values from the active domain')
+parser.add_argument('--rnoise_typo_prob', type=float, default=0.5, help='Probability of a typo or random value')
+parser.add_argument('--type_noise', type=str, default='rnoise', choices=['rnoise', 'conoise'], help="'rnoise' or 'conoise'")
+parser.add_argument('--n_rows', type=int, default=10000, help='Number of rows to sample')
+
+args = parser.parse_args()
+
+repeat = args.repeat
+conoise_iter = args.conoise_iter
+storing_interval = args.storing_interval
+rnoise_alpha = args.rnoise_alpha
+rnoise_beta = args.rnoise_beta
+rnoise_typo_prob = args.rnoise_typo_prob
+type_noise = args.type_noise
+n_rows = args.n_rows
 
 # pick random seeds for each repeat
 random_seeds = [random.randint(0, 1000) for _ in range(repeat)]
