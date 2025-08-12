@@ -127,7 +127,7 @@ for testDirectoryPath in datasets:
             if storing_interval is None:
                 storing_interval = iterations-1
 
-            for iter in range(1, iterations):
+            for iter in range(iterations):
                 rvio.rand_vio_algorithm(df,colomnsInConstraints,all_probs,rnoise_typo_prob)
                 
                 if iter % storing_interval == 0:

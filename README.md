@@ -42,32 +42,31 @@ To run the code, follow these steps:
 
 
 1. Create the graphs using `create_graph.py`:
-   ```sh
-   python create_graph.py
-   ```
+    ```sh
+    python create_graph.py --repeat 1 --conoise_iter 200 --storing_interval 10 --rnoise_alpha 0.01 --rnoise_beta 0 --rnoise_typo_prob 0.5 --type_noise rnoise --n_rows 10000
+    ```
+    You can adjust these arguments as needed:
 
-   The `create_graph.py` script defines several variables that you can adjust to customize the graph creation process:
+    - `--repeat`: Number of repeats with different seeds (default: 1)
+    - `--conoise_iter`: Number of iterations for conoise (default: 200)
+    - `--storing_interval`: Interval to store the graph (default: 10)
+    - `--rnoise_alpha`: Percentage of cells to be violated with rnoise (default: 0.01)
+    - `--rnoise_beta`: Skew of the Zipfian distribution used to select values from the active domain (default: 0)
+    - `--rnoise_typo_prob`: Probability of a typo or random value (default: 0.5)
+    - `--type_noise`: Type of noise, either 'rnoise' or 'conoise' (default: 'rnoise')
+    - `--n_rows`: Number of rows (default: 10000)
 
-  - `repeat`: Number of repeats with different seeds (default: 1)
-  - `conoise_iter`: Number of iterations for conoise (default: 200)
-  - `storing_interval`: Interval to store the graph (default: 10)
-  - `rnoise_alpha`: Percentage of cells to be violated with rnoise (default: 0.01)
-  - `rnoise_beta`: Skew of the Zipfian distribution used to select values from the active domain (default: 0)
-  - `rnoise_typo_prob`: Probability of a typo or random value (default: 0.5)
-  - `type_noise`: Type of noise, either 'rnoise' or 'conoise' (default: 'rnoise')
-  - `n_rows`: Number of rows (default: 10000)
-   You can modify these variables directly in the script or pass them as command-line arguments.
+    All arguments are optional and can be specified in any order.
 
 2. Compute the measures using `compute_measures.py`:
-  ```sh
-  python compute_measures.py <database> <noise_type> <algo_version>
-  ```
+    ```sh
+    python compute_measures.py --database <database> --noise_type <noise_type> --algo_version <algo_version>
+    ```
+    Required arguments:
 
-  The `compute_measures.py` script requires the following arguments:
-
-  - `<database>`: Database name
-  - `<noise_type>`: Type of noise, either 'rnoise' or 'conoise'.
-  - `<algo_version>`: Algorithm version to use, either 'bound_hier', 'hier_expomech', 'expomech', 'baseline_maxdeg', or 'baseline_truedeg'.
+    - `--database`: Database name
+    - `--noise_type`: Type of noise, either 'rnoise' or 'conoise'
+    - `--algo_version`: Algorithm version to use, one of 'bound_hier', 'hier_expomech', 'expomech', 'baseline_maxdeg', or 'baseline_truedeg'
 
 ## Generate figures using scripts in the `figure_scripts` directory:
    ```sh

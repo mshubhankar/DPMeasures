@@ -8,17 +8,16 @@ plt.rc('font', **font)
 
 
 databases = [
-    'Stock',
-    'Hospital',
-    'Flight',
-    # 'Adult',
-    
+    # 'Stock',
+    # 'Hospital',
+    # 'Flight',
+    'Adult',
     # 'Tax',
     
 ]
 
 ntypes = [
-    # 'conoise',
+    'conoise',
     'rnoise'
 ]
 queries = [
@@ -27,7 +26,7 @@ queries = [
            'positive_degree_nodes'
            ]
 
-size = 10000
+size = 100
 epsilons = [0.1, 0.2, 0.5, 1.0, 2.0, 3.0, 5.0]
 epsilon = 1.0
 
@@ -54,7 +53,7 @@ for query in queries:
         errors = []
         for epsilon in epsilons:
                 # if query != 'vertex_cover':
-            result_file = f'{results_folder}/thetasum_hier_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
+            result_file = f'{results_folder}/bound_hier_{query}_{size}_{ntype}_eps_{epsilon}.csv'
             # else:
                 # result_file = f'{results_folder}/{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
             
@@ -107,6 +106,6 @@ for query in queries:
     elif query == 'vertex_cover':
         plt.title(r"$I_{R}$")
     # plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.5), fancybox=True, ncol=3)
-    plt.savefig(f'Plots/epsilon/{query}.jpg', dpi=300, bbox_inches='tight')
+    plt.savefig(f'Plots/epsilon_{query}.jpg', dpi=300, bbox_inches='tight')
     plt.show()
             

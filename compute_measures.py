@@ -11,14 +11,16 @@ import time
 import argparse
 
 parser = argparse.ArgumentParser(description='Compute DP measures on graphs.')
-parser.add_argument('database', type=str, help='Database name')
-parser.add_argument('noise_type', type=str, choices=['rnoise', 'conoise'], help='Type of noise')
-parser.add_argument('algo_version', type=str, choices=['bound_hier', 'hier_expomech', 'expomech', 'baseline_maxdeg', 'baseline_truedeg'], help='Algorithm version')
+parser.add_argument('--database', type=str, help='Database name')
+parser.add_argument('--noise_type', type=str, choices=['rnoise', 'conoise'], help='Type of noise')
+parser.add_argument('--algo_version', type=str, choices=['bound_hier', 'hier_expomech', 'expomech', 'baseline_maxdeg', 'baseline_truedeg'], help='Algorithm version')
+parser.add_argument('--n_rows', type=int, default=10000, help='Number of rows to sample for the graph')
 
 args = parser.parse_args()
 database = args.database
 noise_type = args.noise_type
 algo_version = args.algo_version
+n_rows = args.n_rows
 
 print("database: ", database)
 
@@ -31,7 +33,6 @@ measures = [
 epsilons = [0.1, 0.2, 0.5, 1.0, 2.0, 3.0, 5.0]
 repeats = 10
 data_directory = 'datasets/' + database + '/conflict_graph/'
-n_rows = 10000
 optimization_eps_percentage = 0.4 # percentage of epsilon to be used for optimizations (exponential mechanism + upper bound calculation)
 bound_eps_percentage = 0.25 # percentage of epsilon to be used for upper bound calculation from optimization
 storing_interval = 10 # graphs stored interval
@@ -61,8 +62,14 @@ for epsilon in epsilons:
     for measure in measures:
 
         #start writing in two csv files for random and rnoise results
-        result_csv = open(f'{results_folder}/{algo_version}_{measure}_{n_rows}_{noise_type}_eps_{epsilon}.csv', 'w')
+        result_csv_path = f'{results_folder}/{algo_version}_{measure}_{n_rows}_{noise_type}_eps_{epsilon}.csv'
         
+        if os.path.exists(result_csv_path):
+            print(f"File {result_csv_path} already exists. Skipping.")
+            continue
+        result_csv = open(result_csv_path, 'w')
+
+
         result_csv.write('iter,conflicts,error_nodes,lin_R,measure_value,privacy_noise,error,std,time\n')
         
         print(f"Computing {measure} measure for {database} with {noise_type} noise and epsilon {epsilon}")
@@ -71,17 +78,22 @@ for epsilon in epsilons:
         # count files that match file_regex and iterate over them
         file_count = len(glob.glob(data_directory + file_regex))
         
-        import pdb; pdb.set_trace()
         for iter in range(file_count):
             # load graph
-            G = pickle.load(open(data_directory + f'graph_{n_rows}_{noise_type}_{iter}_0.pkl', 'rb'))
+            file_interval = iter * storing_interval
+            G = pickle.load(open(data_directory + f'graph_{n_rows}_{noise_type}_{file_interval}_0.pkl', 'rb'))
             num_nodes = len(G.nodes())
             max_deg = num_nodes - 1
             true_histogram = util.get_deg_his(G, max_deg) 
 
             conflicts = G.edges()
-            non_private_lin_r, _ = util.I_lin_R(conflicts) # non-private lin_R
-            print('Iteration:', iter, 'Conflicts:', len(conflicts))
+            try:
+                non_private_lin_r, _ = util.I_lin_R(conflicts) # non-private lin_R
+            except Exception as e:
+                print("Gurobi license not found or expired. Proceeding with non_private_lin_r = 0.")
+                non_private_lin_r = 1
+            
+            print('Iteration:', file_interval, 'Conflicts:', len(conflicts))
             temp_errors = []
             temp_results = []
             temp_measures = []
@@ -164,7 +176,10 @@ for epsilon in epsilons:
                         noisy_result = noisy_edges
                         if noisy_result < 0: #post-processing as number of edges can't be less than 0 
                             noisy_result = 0
-                        error = abs(noisy_result-true_edges)/true_edges
+                        if true_edges == 0:
+                            error = 0
+                        else:
+                            error = abs(noisy_result-true_edges)/true_edges
                         measure_value = true_theta_edges
                         privacy_noise = true_theta_edges - noisy_result
                         print('error: ', error)
@@ -177,8 +192,10 @@ for epsilon in epsilons:
                             noisy_pdnodes, truncated_pdnodes = nodedp_add_edge_pdnodes_lap(G, num_nodes, epsilon, theta_candidates, algo_version=algo_version, expo_eps=expo_eps)
                         end_time = time.time()
                         true_pos_nodes = num_nodes - true_histogram[0]
-                        
-                        error = abs(noisy_pdnodes-true_pos_nodes)/true_pos_nodes
+                        if true_pos_nodes == 0:
+                            error = 0
+                        else:
+                            error = abs(noisy_pdnodes-true_pos_nodes)/true_pos_nodes
                         noisy_result = noisy_pdnodes
                         if noisy_result < 0: #post-processing as number of positive degree nodes can't be less than 0 
                             noisy_result = 0
@@ -194,7 +211,7 @@ for epsilon in epsilons:
                     temp_pnoise.append(privacy_noise)
                     temp_time.append(end_time-start_time)
     
-        result_csv.write(f'{iter}, {len(conflicts)},{num_nodes - true_histogram[0]},{non_private_lin_r},{np.mean(temp_measures)},{np.mean(temp_pnoise)},{np.mean(temp_errors)},{np.std(temp_errors)}, {np.mean(temp_time)}\n')
+            result_csv.write(f'{file_interval}, {len(conflicts)},{num_nodes - true_histogram[0]},{non_private_lin_r},{np.mean(temp_measures)},{np.mean(temp_pnoise)},{np.mean(temp_errors)},{np.std(temp_errors)}, {np.mean(temp_time)}\n')
 
-    result_csv.close()
+        result_csv.close()
         

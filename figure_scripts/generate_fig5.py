@@ -8,25 +8,25 @@ plt.rc('font', **font)
 plt.rcParams.update({'figure.autolayout': True})
 
 databases = [
-    'Flight',
+    # 'Flight',
     'Adult',
-    'Stock',
-    'Hospital',
-    'Tax'
+    # 'Stock',
+    # 'Hospital',
+    # 'Tax'
     
 ]
 
 ntypes = [
-    # 'conoise',
+    'conoise',
     'rnoise'
 ]
 queries = [
-            # 'vertex_cover', 
+            'vertex_cover', 
            'no_of_edges',
            'positive_degree_nodes'
            ]
 
-size = 10000
+size = 100
 epsilon = 1.0
 
 def repair_df(df):
@@ -53,15 +53,15 @@ for database in databases:
         for i, query in enumerate(queries):
             ax = axs[i]
 
-            baselineV_file = f'{results_folder}/baseline|V|_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
+            baselineV_file = f'{results_folder}/baseline_truedeg_{query}_{size}_{ntype}_eps_{epsilon}.csv'
             baselineV_df = pd.read_csv(baselineV_file)
             baselineV_df = repair_df(baselineV_df)
 
             if query != 'vertex_cover':
-                baselinetruedeg_file = f'{results_folder}/baselinetruemaxdeg_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
-                thetaexpomech_file = f'{results_folder}/expomech_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
-                thetaexpomechhier_file = f'{results_folder}/expomech_hier_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
-                thetaexpomechsumhier_file = f'{results_folder}/thetasum_hier_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
+                baselinetruedeg_file = f'{results_folder}/baseline_maxdeg_{query}_{size}_{ntype}_eps_{epsilon}.csv'
+                thetaexpomech_file = f'{results_folder}/expomech_{query}_{size}_{ntype}_eps_{epsilon}.csv'
+                thetaexpomechhier_file = f'{results_folder}/hier_expomech_{query}_{size}_{ntype}_eps_{epsilon}.csv'
+                thetaexpomechsumhier_file = f'{results_folder}/bound_hier_{query}_{size}_{ntype}_eps_{epsilon}.csv'
 
                 baselinetruedeg_df = pd.read_csv(baselinetruedeg_file)
                 thetaexpomech_df = pd.read_csv(thetaexpomech_file)
@@ -83,11 +83,11 @@ for database in databases:
             
             # Plot
             if query == 'no_of_edges':
-                ax.plot(baselineV_df[' conflicts'], baselineV_df['error'], label=r"$\theta = |V|$")
-                ax.plot(baselinetruedeg_df[' conflicts'], baselinetruedeg_df['error'], label=r"$\theta = \max \deg(v)$", linestyle='--')
-                ax.plot(thetaexpomech_df[' conflicts'], thetaexpomech_df['error'], label=r"Exponential mech.")
-                ax.plot(thetaexpomechhier_df[' conflicts'], thetaexpomechhier_df['error'], label=r"Hierarchical exp. mech.")
-                ax.plot(thetaexpomechsumhier_df[' conflicts'], thetaexpomechsumhier_df['error'], label=r"Upper bound + Hierarchical")
+                ax.plot(baselineV_df['conflicts'], baselineV_df['error'], label=r"$\theta = |V|$")
+                ax.plot(baselinetruedeg_df['conflicts'], baselinetruedeg_df['error'], label=r"$\theta = \max \deg(v)$", linestyle='--')
+                ax.plot(thetaexpomech_df['conflicts'], thetaexpomech_df['error'], label=r"Exponential mech.")
+                ax.plot(thetaexpomechhier_df['conflicts'], thetaexpomechhier_df['error'], label=r"Hierarchical exp. mech.")
+                ax.plot(thetaexpomechsumhier_df['conflicts'], thetaexpomechsumhier_df['error'], label=r"Upper bound + Hierarchical")
 
             elif query == 'positive_degree_nodes':
                 ax.plot(baselineV_df['error_nodes'], baselineV_df['error'], label=r"$\theta = |V|$")

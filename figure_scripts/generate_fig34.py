@@ -3,29 +3,34 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 font = {'size'   : 30}
+import os
 
 plt.rc('font', **font)
 plt.rcParams.update({'figure.autolayout': True})
 
 databases = [
-    'Flight',
+    # 'Flight',
     'Adult',
-    'Stock',
-    'Hospital',
-    'Tax'
+    # 'Stock',
+    # 'Hospital',
+    # 'Tax'
     
 ]
+size = 100
+
+epsilon = 1.0
+
+queries = [
+             
+        #    'no_of_edges',
+           'positive_degree_nodes',
+           'vertex_cover',
+           ]
 
 ntypes = [
     'conoise',
     'rnoise'
 ]
-queries = [
-             
-           'no_of_edges',
-           'positive_degree_nodes',
-           'vertex_cover',
-           ]
 
 def repair_df(df):
     df['error'] = df['error'].replace(' inf',0.0)
@@ -34,9 +39,6 @@ def repair_df(df):
     df['error'] = df['error'].astype(float)
     df['std'] = df['std'].astype(float)
     return df
-
-size = 10000
-epsilon = 1.0
 
 stats_dict = {}
 
@@ -64,18 +66,18 @@ for database in databases:
             ax = axs[i]
             stats_dict[database][query] = {}
 
-            baselineV_file = f'{results_folder}/baseline|V|_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
+            baselineV_file = f'{results_folder}/baseline_truedeg_{query}_{size}_{ntype}_eps_{epsilon}.csv'
             baselineV_df = repair_df(pd.read_csv(baselineV_file))
 
             if query != 'vertex_cover':
-                baselinetruedeg_file = f'{results_folder}/baselinetruemaxdeg_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
-                thetaexpomech_file = f'{results_folder}/expomech_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
-                thetaexpomechhier_file = f'{results_folder}/expomech_hier_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
-                thetaexpomechsumhier_file = f'{results_folder}/thetasum_hier_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
+                # baselinetruedeg_file = f'{results_folder}/baselinetruemaxdeg_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
+                # thetaexpomech_file = f'{results_folder}/expomech_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
+                # thetaexpomechhier_file = f'{results_folder}/expomech_hier_{query}_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
+                thetaexpomechsumhier_file = f'{results_folder}/bound_hier_{query}_{size}_{ntype}_eps_{epsilon}.csv'
 
-                baselinetruedeg_df = repair_df(pd.read_csv(baselinetruedeg_file))
-                thetaexpomech_df = repair_df(pd.read_csv(thetaexpomech_file))
-                thetaexpomechhier_df = repair_df(pd.read_csv(thetaexpomechhier_file))
+                # baselinetruedeg_df = repair_df(pd.read_csv(baselinetruedeg_file))
+                # thetaexpomech_df = repair_df(pd.read_csv(thetaexpomech_file))
+                # thetaexpomechhier_df = repair_df(pd.read_csv(thetaexpomechhier_file))
                 thetaexpomechsumhier_df = repair_df(pd.read_csv(thetaexpomechsumhier_file))
 
                 thetaexpomechsumhier_df['result'] = thetaexpomechsumhier_df['measure_value'] + thetaexpomechsumhier_df['privacy_noise']
@@ -151,5 +153,7 @@ for database in databases:
         # fig.legend(handles, labels, loc='lower center', ncol=3, bbox_to_anchor=(0.5, -0.02))
         fig.tight_layout(rect=[0, 0.05, 1, 0.95])
         # fig.subplots_adjust(wspace=0.3)
+        if not os.path.exists('Plots'):
+            os.makedirs('Plots')
         fig.savefig(f'Plots/combined_{database}_samegraph_{size}_{ntype}_eps_{epsilon}.jpg', dpi=300, bbox_inches='tight')
         plt.show()
