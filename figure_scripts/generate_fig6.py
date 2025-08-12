@@ -2,17 +2,27 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import argparse
+
 font = {'size'   : 18}
 
 plt.rc('font', **font)
 
+parser = argparse.ArgumentParser(description="Generate figures for DPMeasures")
+parser.add_argument('--size', type=int, default=100, help='Size parameter')
+
+args = parser.parse_args()
+
+size = args.size
+
+
 
 databases = [
-    # 'Stock',
-    # 'Hospital',
-    # 'Flight',
+    'Stock',
+    'Hospital',
+    'Flight',
     'Adult',
-    # 'Tax',
+    'Tax',
     
 ]
 
@@ -28,7 +38,6 @@ queries = [
 
 size = 100
 epsilons = [0.1, 0.2, 0.5, 1.0, 2.0, 3.0, 5.0]
-epsilon = 1.0
 
 def repair_df(df):
     df['error'] = df['error'].replace(' inf',0.0)

@@ -74,4 +74,6 @@ To run the code, follow these steps:
    ```
     Replace `figureX.sh` with the appropriate script for the figure you want to generate (e.g., `figure1.sh`, `figure2.sh`, etc.). Figure 3-4 and Figure 5-6 have same script. 
 
+    The code has been configured to work with epsilon = 1.0 and size = 100 by default for faster runtime. You can modify these parameters in the respective figure scripts if needed. 
+
  **Note:** The code introduces privacy noise by sampling from noisy distributions. As a result, the figures you generate may differ from those presented in the paper due to the inherent randomness in the noise sampling process.

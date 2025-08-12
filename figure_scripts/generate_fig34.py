@@ -2,27 +2,35 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import argparse
 font = {'size'   : 30}
 import os
 
 plt.rc('font', **font)
 plt.rcParams.update({'figure.autolayout': True})
 
+
+parser = argparse.ArgumentParser(description="Generate figures for DPMeasures")
+parser.add_argument('--size', type=int, default=100, help='Size parameter')
+parser.add_argument('--epsilon', type=float, default=1.0, help='Epsilon parameter')
+args = parser.parse_args()
+
+size = args.size
+epsilon = args.epsilon
+
 databases = [
-    # 'Flight',
+    'Flight',
     'Adult',
-    # 'Stock',
-    # 'Hospital',
-    # 'Tax'
+    'Stock',
+    'Hospital',
+    'Tax'
     
 ]
-size = 100
 
-epsilon = 1.0
 
 queries = [
              
-        #    'no_of_edges',
+           'no_of_edges',
            'positive_degree_nodes',
            'vertex_cover',
            ]
@@ -49,6 +57,7 @@ for database in databases:
 
     for ntype in ntypes:
         from matplotlib.gridspec import GridSpec
+
 
         fig = plt.figure(figsize=(24, 6))
         gs = GridSpec(1, 3, figure=fig, width_ratios=[1, 1, 1])
@@ -89,24 +98,24 @@ for database in databases:
                 stats_dict[database][query]['max_error'] = thetaexpomechsumhier_df['error'].max()
 
             if query == 'no_of_edges':
-                r2t_baseline_file = f'Results_improved/r2t/{database}/nedges_samegraph_{size}_{ntype}_eps_{epsilon}.csv'
-                r2t_baseline_df = pd.read_csv(r2t_baseline_file)
-                r2t_baseline_df['result'] = r2t_baseline_df['private_result'] / 2
-                r2t_baseline_df['upper_bound'] = r2t_baseline_df['result'] + r2t_baseline_df['privacy_result_std'] / 2
-                r2t_baseline_df['lower_bound'] = (r2t_baseline_df['result'] - r2t_baseline_df['privacy_result_std'] / 2).clip(lower=0)
+                # r2t_baseline_file = f'Results/r2t_{database}_{query}_{size}_{ntype}_eps_{epsilon}.csv'
+                # r2t_baseline_df = pd.read_csv(r2t_baseline_file)
+                # r2t_baseline_df['result'] = r2t_baseline_df['private_result'] / 2
+                # r2t_baseline_df['upper_bound'] = r2t_baseline_df['result'] + r2t_baseline_df['privacy_result_std'] / 2
+                # r2t_baseline_df['lower_bound'] = (r2t_baseline_df['result'] - r2t_baseline_df['privacy_result_std'] / 2).clip(lower=0)
 
-                stats_dict[database][query]['average_error_r2t'] = r2t_baseline_df['error'].mean()
-                stats_dict[database][query]['max_error_r2t'] = r2t_baseline_df['error'].max()
+                # stats_dict[database][query]['average_error_r2t'] = r2t_baseline_df['error'].mean()
+                # stats_dict[database][query]['max_error_r2t'] = r2t_baseline_df['error'].max()
 
                 ax.plot(thetaexpomechsumhier_df['iter'], thetaexpomechsumhier_df['result'], label="Our approach")
-                ax.plot(thetaexpomechsumhier_df['iter'], thetaexpomechsumhier_df[' conflicts'], label="True value")
-                ax.plot(r2t_baseline_df['iter'], r2t_baseline_df['result'], label="R2T")
-                ax.fill_between(thetaexpomechsumhier_df['iter'],
-                                thetaexpomechsumhier_df['lower_bound'],
-                                thetaexpomechsumhier_df['upper_bound'], alpha=0.2)
-                ax.fill_between(r2t_baseline_df['iter'],
-                                r2t_baseline_df['lower_bound'],
-                                r2t_baseline_df['upper_bound'], alpha=0.2, color='green')
+                ax.plot(thetaexpomechsumhier_df['iter'], thetaexpomechsumhier_df['conflicts'], label="True value")
+                # ax.plot(r2t_baseline_df['iter'], r2t_baseline_df['result'], label="R2T")
+                # ax.fill_between(thetaexpomechsumhier_df['iter'],
+                #                 thetaexpomechsumhier_df['lower_bound'],
+                #                 thetaexpomechsumhier_df['upper_bound'], alpha=0.2)
+                # ax.fill_between(r2t_baseline_df['iter'],
+                #                 r2t_baseline_df['lower_bound'],
+                #                 r2t_baseline_df['upper_bound'], alpha=0.2, color='green')
 
             elif query == 'positive_degree_nodes':
                 ax.plot(thetaexpomechsumhier_df['iter'], thetaexpomechsumhier_df['result'], label="Our approach")
