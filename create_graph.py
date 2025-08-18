@@ -10,14 +10,6 @@ import RnoiseViolationsAlgorithm as rvio
 import argparse
 random.seed(0)
 
-datasets = [
-            'Adult',
-            'Stock',
-            'Flight',
-            'Hospital',
-            'Tax', 
-            ]
-
 
 parser = argparse.ArgumentParser(description='Create conflict graphs with noise.')
 parser.add_argument('--repeat', type=int, default=1, help='Number of repeats with different seeds')
@@ -28,6 +20,9 @@ parser.add_argument('--rnoise_beta', type=float, default=0, help='Skew of the Zi
 parser.add_argument('--rnoise_typo_prob', type=float, default=0.5, help='Probability of a typo or random value')
 parser.add_argument('--type_noise', type=str, default='rnoise', choices=['rnoise', 'conoise'], help="'rnoise' or 'conoise'")
 parser.add_argument('--n_rows', type=int, default=10000, help='Number of rows to sample')
+parser.add_argument('--database', type=str, default='Adult', help='List of datasets to process')
+
+
 
 args = parser.parse_args()
 
@@ -39,6 +34,10 @@ rnoise_beta = args.rnoise_beta
 rnoise_typo_prob = args.rnoise_typo_prob
 type_noise = args.type_noise
 n_rows = args.n_rows
+database = args.database
+
+datasets = [database]
+
 
 # pick random seeds for each repeat
 random_seeds = [random.randint(0, 1000) for _ in range(repeat)]
@@ -127,7 +126,7 @@ for testDirectoryPath in datasets:
             if storing_interval is None:
                 storing_interval = iterations-1
 
-            for iter in range(iterations):
+            for iter in range(1, iterations+1):
                 rvio.rand_vio_algorithm(df,colomnsInConstraints,all_probs,rnoise_typo_prob)
                 
                 if iter % storing_interval == 0:

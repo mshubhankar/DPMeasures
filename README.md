@@ -77,3 +77,11 @@ To run the code, follow these steps:
     The code has been configured to work with epsilon = 1.0 and size = 100 by default for faster runtime. You can modify these parameters in the respective figure scripts if needed. 
 
  **Note:** The code introduces privacy noise by sampling from noisy distributions. As a result, the figures you generate may differ from those presented in the paper due to the inherent randomness in the noise sampling process.
+
+## Runtime
+The runtime for generating graphs and computing measures can vary significantly based on the dataset size, number of constraints, and the specific algorithm used. Here are some approximate runtimes:
+
+| Script                    | 100 rows                   | 10000 rows            |
+|---------------------------|----------------------------|-----------------------|
+| Figure 3 and 4            | 10 minutes                 | 23 hours              |
+| Figure 5 and 6            | 14 minutes                 | 80 hours              |
