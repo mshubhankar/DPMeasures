@@ -76,7 +76,7 @@ for testDirectoryPath in datasets:
                 t = cvio.fittingViolationAlgorithm(constraintSet,df,t1,t2)
                 cvio.updateTable(df,t[0],t[1],sample)
 
-                if iter % storing_interval == 0:
+                if iter % storing_interval == 0 or iter == 0:
                     allColumns = {}
                     orig_columns = df.columns
                     for col in df.columns: 
@@ -126,10 +126,9 @@ for testDirectoryPath in datasets:
             if storing_interval is None:
                 storing_interval = iterations-1
 
-            for iter in range(1, iterations+1):
+            for iter in range(iterations):
                 rvio.rand_vio_algorithm(df,colomnsInConstraints,all_probs,rnoise_typo_prob)
-                
-                if iter % storing_interval == 0:
+                if iter % storing_interval == 0 or iter == 0:
                     allColumns = {}
                     orig_columns = df.columns
                     for col in df.columns: 
